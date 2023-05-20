@@ -1,0 +1,64 @@
+--- Create tables
+
+CREATE TABLE fishing (
+	id SERIAL PRIMARY KEY, 
+	BoatName VARCHAR NOT NULL,
+	BoatID INTEGER NOT NULL,
+	Trip VARCHAR NOT NULL,
+	Day DATE NOT NULL,
+	Kg INTEGER NOT NULL,
+	Duration INTEGER NOT NULL,
+	Lines INTEGER NOT NULL,
+	Temperature REAL NOT NULL,
+	Coordinate GEOGRAPHY(Point, 4326)
+);
+
+CREATE TABLE ais (
+	id SERIAL PRIMARY KEY, 
+	BoatName VARCHAR NOT NULL,
+	BoatID INTEGER NOT NULL,
+	Date TIMESTAMP NOT NULL,
+	Speed FLOAT NOT NULL,
+	Course VARCHAR NOT NULL,
+	Coordinate GEOGRAPHY(Point, 4326),
+	Day DATE NOT NULL
+);
+
+
+-- Route visualisations
+
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+
+
+CREATE OR REPLACE VIEW vessel_trips AS
+SELECT BoatName, Trip, ST_MakeLine(CAST(Coordinate AS GEOMETRY) ORDER BY Day) AS TripPath
+FROM fishing
+WHERE BoatName = 'Rodney'
+GROUP BY BoatName, Trip;
+
+CREATE OR REPLACE VIEW vessel_trip_fishing AS
+SELECT BoatName, ST_MakeLine(CAST(Coordinate AS GEOMETRY) ORDER BY Day) AS TripPath
+FROM fishing
+WHERE BoatName = 'Rodney'
+GROUP BY BoatName;
+
+CREATE OR REPLACE VIEW vessel_route_length AS
+SELECT BoatName, Trip, ST_Length(CAST(ST_MakeLine(CAST(Coordinate AS GEOMETRY) ORDER BY Day) AS GEOGRAPHY)) / 1000.0 AS RouteLength
+FROM fishing
+WHERE BoatName = 'Rodney'
+GROUP BY BoatName, Trip;
+
+
+-- Plotting fishing data
+
+CREATE OR REPLACE VIEW fish_quantity_per_boat AS
+SELECT BoatName, SUM(Kg) AS TotalQuantity
+FROM fishing
+GROUP BY BoatName;
+
+CREATE OR REPLACE VIEW average_fishes_per_trip AS
+SELECT Trip, EXTRACT(YEAR FROM Day) AS Year, AVG(Kg) AS AverageFishes
+FROM fishing
+WHERE BoatName = 'Rodney' AND EXTRACT(YEAR FROM Day) = 2020
+GROUP BY Trip, Year;
