@@ -31,7 +31,7 @@ With this task we followed the same steps as in the previous one, firstly making
 
 - a. Create chart to show the correlation between the fish caught and temperature for one vessel (e.g., Rodney).
 
-Merged data containing fishing and temperature information is used to plot correlation between caught fish and temperature for boat Rodney. Scater plot was chosen as adequate visualisation to plot correlation but in the end it showes that there is no significant correlation. 
+Merged data containing fishing and temperature information is used to plot correlation between caught fish and temperature for boat Rodney. Scatter plot was chosen as adequate visualisation to plot correlation but in the end it shows that there is no significant correlation. 
 
 - b. Visualize the chlorophyll as a Raster
 
